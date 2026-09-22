@@ -1,0 +1,30 @@
+name: Release PR
+
+on:
+  workflow_call:
+    inputs:
+      release-type:
+        required: false
+        type: string
+        default: node
+      target-branch:
+        required: false
+        type: string
+        default: main
+    secrets:
+      RELEASE_PLEASE_TOKEN:
+        required: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: googleapis/release-please-action@v4
+        with:
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+          release-type: ${{ inputs.release-type }}
+          target-branch: ${{ inputs.target-branch }}
