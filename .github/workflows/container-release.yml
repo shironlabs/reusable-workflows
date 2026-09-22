@@ -27,11 +27,24 @@ on:
         required: false
         type: string
         default: ubuntu-latest
+      notify-repository:
+        description: Repository whose workflow receives the post-publish dispatch
+        required: false
+        type: string
+        default: ''
+      notify-workflow:
+        description: Workflow file to dispatch after publishing
+        required: false
+        type: string
+        default: internal-image-renovate.yml
     secrets:
       REGISTRY_USERNAME:
         required: true
       REGISTRY_PASSWORD:
         required: true
+      DISPATCH_TOKEN:
+        description: GitHub App or PAT token allowed to dispatch the notification workflow
+        required: false
 
 permissions:
   contents: read
@@ -79,3 +92,17 @@ jobs:
               "$RUNNER_TEMP/crane" push --insecure "$archive" "$REGISTRY/$IMAGE_PREFIX/$name:latest"
             fi
           done <<< "$IMAGES"
+      - name: Dispatch Melisia image update
+        if: inputs.notify-repository != '' && secrets.DISPATCH_TOKEN != ''
+        env:
+          GH_TOKEN: ${{ secrets.DISPATCH_TOKEN }}
+          NOTIFY_REPOSITORY: ${{ inputs.notify-repository }}
+          NOTIFY_WORKFLOW: ${{ inputs.notify-workflow }}
+          IMAGE_PREFIX: ${{ inputs.image-prefix }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh api --method POST \
+            "repos/${NOTIFY_REPOSITORY}/actions/workflows/${NOTIFY_WORKFLOW}/dispatches" \
+            -f ref=main \
+            -f "inputs[target-image-prefix]=${IMAGE_PREFIX}"
