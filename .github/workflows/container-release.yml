@@ -17,6 +17,11 @@ on:
         required: false
         type: string
         default: linux/arm64
+      push-latest:
+        description: Also update the mutable latest tag during migration
+        required: false
+        type: boolean
+        default: false
     secrets:
       REGISTRY_USERNAME:
         required: true
@@ -49,6 +54,7 @@ jobs:
           IMAGE_PREFIX: ${{ inputs.image-prefix }}
           IMAGES: ${{ inputs.images }}
           PLATFORMS: ${{ inputs.platforms }}
+          PUSH_LATEST: ${{ inputs.push-latest }}
           REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
           REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
         shell: bash
@@ -64,4 +70,7 @@ jobs:
             docker buildx build --platform "$PLATFORMS" --file "$dockerfile" \
               --output "type=docker,dest=$archive" --tag "$name:$tag" "$context"
             "$RUNNER_TEMP/crane" push --insecure "$archive" "$REGISTRY/$IMAGE_PREFIX/$name:$tag"
+            if [[ "$PUSH_LATEST" == true ]]; then
+              "$RUNNER_TEMP/crane" push --insecure "$archive" "$REGISTRY/$IMAGE_PREFIX/$name:latest"
+            fi
           done <<< "$IMAGES"
