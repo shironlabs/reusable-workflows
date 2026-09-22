@@ -7,5 +7,6 @@ documentation only; credentials and other sensitive values must be supplied by
 the calling repository as GitHub Actions secrets.
 
 `release-pr.yml` creates Release PRs with release-please. `container-release.yml`
-builds and pushes images from `v*` tags. The caller supplies registry credentials
-and a newline-separated `name|dockerfile|context` image list.
+builds and pushes images from `v*` tags. `renovate-approver.yml` approves PRs only
+when their author is Renovate. The caller supplies registry credentials and a
+newline-separated `name|dockerfile|context` image list.
