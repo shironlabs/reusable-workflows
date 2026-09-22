@@ -93,7 +93,7 @@ jobs:
             fi
           done <<< "$IMAGES"
       - name: Dispatch Melisia image update
-        if: inputs.notify-repository != '' && secrets.DISPATCH_TOKEN != ''
+        if: inputs.notify-repository != ''
         env:
           GH_TOKEN: ${{ secrets.DISPATCH_TOKEN }}
           NOTIFY_REPOSITORY: ${{ inputs.notify-repository }}
