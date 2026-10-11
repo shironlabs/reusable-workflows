@@ -26,10 +26,13 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    env:
+      MELISIA_BOT_APP_ID: ${{ secrets.MELISIA_BOT_APP_ID }}
+      MELISIA_BOT_APP_PRIVATE_KEY: ${{ secrets.MELISIA_BOT_APP_PRIVATE_KEY }}
     steps:
       - uses: actions/create-github-app-token@v2
         id: app-token
-        if: secrets.MELISIA_BOT_APP_ID != '' && secrets.MELISIA_BOT_APP_PRIVATE_KEY != ''
+        if: env.MELISIA_BOT_APP_ID != '' && env.MELISIA_BOT_APP_PRIVATE_KEY != ''
         with:
           app-id: ${{ secrets.MELISIA_BOT_APP_ID }}
           private-key: ${{ secrets.MELISIA_BOT_APP_PRIVATE_KEY }}
@@ -38,8 +41,8 @@ jobs:
 
       - name: Validate release credentials
         env:
-          APP_ID: ${{ secrets.MELISIA_BOT_APP_ID }}
-          APP_PRIVATE_KEY: ${{ secrets.MELISIA_BOT_APP_PRIVATE_KEY }}
+          APP_ID: ${{ env.MELISIA_BOT_APP_ID }}
+          APP_PRIVATE_KEY: ${{ env.MELISIA_BOT_APP_PRIVATE_KEY }}
           RELEASE_PLEASE_TOKEN: ${{ secrets.RELEASE_PLEASE_TOKEN }}
         run: |
           set -euo pipefail
